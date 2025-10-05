@@ -1,0 +1,67 @@
+[
+  {
+    "base": "sour cream",
+    "substitute": "greek yogurt (full-fat)",
+    "basis": "volume",
+    "ratioMultiplier": 1,
+    "notes": "Yogurt tang is slightly sharper than sour cream.",
+    "alts": [
+      { "substitute": "crème fraîche", "basis": "volume", "ratioMultiplier": 1 }
+    ]
+  },
+  {
+    "base": "buttermilk",
+    "substitute": "plain yogurt (thinned)",
+    "basis": "volume",
+    "ratioMultiplier": 1,
+    "notes": "Thin with water or milk to buttermilk consistency."
+  },
+  {
+    "base": "heavy cream",
+    "substitute": "evaporated milk",
+    "basis": "volume",
+    "ratioMultiplier": 1,
+    "notes": "Add fat for richness in sauces or baking as needed.",
+    "alts": [
+      { "substitute": "butter + milk", "basis": "volume", "ratioMultiplier": 1 }
+    ]
+  },
+  {
+    "base": "garlic clove",
+    "substitute": "garlic powder",
+    "basis": "unit",
+    "unitMapping": {
+      "perBaseUnitQuantity": 0.5,
+      "perBaseUnitUnit": "tsp"
+    },
+    "notes": "1 clove ≈ 1/2 tsp garlic powder."
+  },
+  {
+    "base": "fresh basil",
+    "substitute": "dried basil",
+    "basis": "volume",
+    "ratioMultiplier": 0.33,
+    "notes": "Dried herbs are more potent; use about 1/3 the volume."
+  },
+  {
+    "base": "rice vinegar",
+    "substitute": "apple cider vinegar",
+    "basis": "volume",
+    "ratioMultiplier": 1,
+    "notes": "ACV is fruitier; adjust sweetness if needed."
+  },
+  {
+    "base": "shaoxing wine",
+    "substitute": "dry sherry",
+    "basis": "volume",
+    "ratioMultiplier": 1,
+    "notes": "Similar fortified wine profile."
+  },
+  {
+    "base": "mirin",
+    "substitute": "sake",
+    "basis": "volume",
+    "ratioMultiplier": 1,
+    "notes": "Add sugar to approximate sweetness."
+  }
+]

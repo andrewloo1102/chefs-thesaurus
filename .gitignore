@@ -1,0 +1,26 @@
+# Node / TypeScript
+node_modules/
+dist/
+build/
+*.log
+*.tsbuildinfo
+coverage/
+.tmp/
+.cache/
+.nyc_output/
+
+# Env
+.env
+.env.*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Web app build artifacts
+apps/web/.next/
+apps/web/out/
+apps/web/.vercel/
+
