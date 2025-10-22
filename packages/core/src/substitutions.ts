@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { canonUnit, fromMl, round, toMl, type SupportedUnit } from "./units";
-import { resolveCanonical, examples } from "./canonical";
+import { canonUnit, fromMl, round, toMl, type SupportedUnit } from "./units.js";
+import { resolveCanonical, examples } from "./canonical.js";
 
 type Basis = "volume" | "unit";
 

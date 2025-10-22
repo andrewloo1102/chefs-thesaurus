@@ -58,6 +58,8 @@ export function toMl(quantity: number, unit: SupportedUnit): number {
       return quantity * ML_PER_TBSP;
     case "cup":
       return quantity * ML_PER_CUP;
+    default:
+      throw new Error(`Unsupported unit: ${unit}`);
   }
 }
 
@@ -74,6 +76,8 @@ export function fromMl(ml: number, targetUnit: SupportedUnit): number {
       return ml / ML_PER_TBSP;
     case "cup":
       return ml / ML_PER_CUP;
+    default:
+      throw new Error(`Unsupported unit: ${targetUnit}`);
   }
 }
 

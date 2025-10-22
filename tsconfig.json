@@ -8,10 +8,15 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": ["node"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@chefs-thesaurus/core": ["./packages/core/src/index.ts"],
+      "@chefs-thesaurus/core/*": ["./packages/core/src/*"]
+    }
   },
   "include": [
-    "apps/server/src/**/*.ts"
+    "apps/server/src/**/*.ts",
+    "packages/core/src/**/*.ts"
   ]
 }
 

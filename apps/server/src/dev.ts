@@ -1,4 +1,4 @@
-import { searchSubstitutions, describeEffects, lookupStores } from "./index";
+import { searchSubstitutions, describeEffects, lookupStores } from "@chefs-thesaurus/core";
 
 void (async function main() {
   // ensure the exports are usable
