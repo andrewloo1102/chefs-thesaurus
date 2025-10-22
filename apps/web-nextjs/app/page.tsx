@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChefHat } from "lucide-react";
+// import { ChefHat } from "lucide-react";
 import { IngredientComboBox } from "@/components/IngredientComboBox";
 import { QuantityInput } from "@/components/QuantityInput";
 import { UnitSelect } from "@/components/UnitSelect";
@@ -58,35 +58,35 @@ export default function Home() {
     setFormData(combo);
   };
 
-  const calculateAmount = (
-    originalQuantity: number,
-    originalUnit: string,
-    ratio: string
-  ): string => {
-    // Simple ratio calculation - in a real app this would be more sophisticated
-    const [substitutePart, originalPart] = ratio.split(" : ").map(part => {
-      // Handle fractions like "3/4"
-      if (part.includes("/")) {
-        const [num, den] = part.split("/").map(Number);
-        return num / den;
-      }
-      return parseFloat(part);
-    });
-    
-    const multiplier = substitutePart / originalPart;
-    const newAmount = originalQuantity * multiplier;
-    
-    // Format nicely
-    if (newAmount === Math.floor(newAmount)) {
-      return `${newAmount} ${originalUnit}`;
-    } else if (newAmount < 1) {
-      // Convert to fraction for small amounts
-      const fraction = newAmount.toFixed(2);
-      return `${fraction} ${originalUnit}`;
-    } else {
-      return `${newAmount.toFixed(1)} ${originalUnit}`;
-    }
-  };
+  // const calculateAmount = (
+  //   originalQuantity: number,
+  //   originalUnit: string,
+  //   ratio: string
+  // ): string => {
+  //   // Simple ratio calculation - in a real app this would be more sophisticated
+  //   const [substitutePart, originalPart] = ratio.split(" : ").map(part => {
+  //     // Handle fractions like "3/4"
+  //     if (part.includes("/")) {
+  //       const [num, den] = part.split("/").map(Number);
+  //       return num / den;
+  //     }
+  //     return parseFloat(part);
+  //   });
+  //   
+  //   const multiplier = substitutePart / originalPart;
+  //   const newAmount = originalQuantity * multiplier;
+  //   
+  //   // Format nicely
+  //   if (newAmount === Math.floor(newAmount)) {
+  //     return `${newAmount} ${originalUnit}`;
+  //   } else if (newAmount < 1) {
+  //     // Convert to fraction for small amounts
+  //     const fraction = newAmount.toFixed(2);
+  //     return `${fraction} ${originalUnit}`;
+  //   } else {
+  //     return `${newAmount.toFixed(1)} ${originalUnit}`;
+  //   }
+  // };
 
   const findSubstitute = async () => {
     if (!formData.ingredient) return;
@@ -158,7 +158,9 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <ChefHat className="h-7 w-7 text-primary" />
+            <div className="h-7 w-7 text-primary bg-primary/10 rounded-full flex items-center justify-center">
+              <span className="text-sm font-bold">🍳</span>
+            </div>
             <h1 className="text-xl">Substitute</h1>
           </div>
           <p className="text-muted-foreground text-sm max-w-sm mx-auto leading-relaxed">
@@ -218,7 +220,7 @@ export default function Home() {
             {state === "idle" && (
               <div className="text-center text-muted-foreground max-w-sm mx-auto lg:mt-8">
                 <p className="text-sm leading-relaxed">
-                  Select an ingredient and click "Find substitute" to get started, or try one of the example combinations below.
+                  Select an ingredient and click &quot;Find substitute&quot; to get started, or try one of the example combinations below.
                 </p>
               </div>
             )}

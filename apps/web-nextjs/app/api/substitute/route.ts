@@ -17,8 +17,8 @@ export async function POST(request: NextRequest) {
     if (!searchResult.supported) {
       return NextResponse.json({
         supported: false,
-        message: searchResult.message,
-        examples: searchResult.examples,
+        message: (searchResult as { message: string; examples: string[] }).message,
+        examples: (searchResult as { message: string; examples: string[] }).examples,
       });
     }
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Call lookupStores (if location provided)
-    let stores = [];
+    let stores: Array<{ name: string; lat: number; lon: number; distance_m: number }> = [];
     if (lat !== undefined && lon !== undefined && searchResult.substitute) {
       stores = await lookupStores({
         query: searchResult.substitute,
