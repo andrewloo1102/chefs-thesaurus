@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-// import { ChefHat } from "lucide-react";
+import { ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IngredientComboBox } from "@/components/IngredientComboBox";
 import { QuantityInput } from "@/components/QuantityInput";
@@ -172,7 +172,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-3">
             <div className="h-7 w-7 text-primary bg-primary/10 rounded-full flex items-center justify-center">
-              <span>🍳</span>
+              <ChefHat className="h-4 w-4" />
             </div>
             <h1 className="text-xl">Chef's Thesaurus</h1>
           </div>
