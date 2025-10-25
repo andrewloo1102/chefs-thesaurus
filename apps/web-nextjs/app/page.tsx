@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
-export const dynamic = 'force-dynamic';
-
 import { ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IngredientComboBox } from "@/components/IngredientComboBox";
