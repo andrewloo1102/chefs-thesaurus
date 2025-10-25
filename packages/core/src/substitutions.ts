@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import { canonUnit, fromMl, round, toMl, type SupportedUnit } from "./units.js";
-import { resolveCanonical, examples } from "./canonical.js";
+import { canonUnit, fromMl, round, toMl, type SupportedUnit } from "./units";
+import { resolveCanonical, examples } from "./canonical";
 
 type Basis = "volume" | "unit";
 
@@ -132,12 +132,12 @@ export function searchSubstitutions(args: SearchArgs): SearchResult {
       })),
     };
   } else {
-    // Unit-based mapping
-    if (canon !== "unit") {
-      return { supported: false, message: "Not in v1", examples: examples() };
-    }
+    // Unit-based mapping (like eggs, garlic cloves)
+    // For unit-based ingredients, we just multiply the quantity
+    // regardless of what unit the user provided
     const outQty = round(quantity * primaryAlt.ratio.value, 3);
-    const outUnit = "tsp" as SupportedUnit; // Default to tsp for unit mappings
+    // Return the count in the unit specified, or use "unit" as fallback
+    const outUnit = canon as SupportedUnit;
     return {
       supported: true,
       base: entry.base,
@@ -181,6 +181,37 @@ export function describeEffects(args: EffectsArgs): EffectsResult {
 export type StoreLookupArgs = { query: string; lat: number; lon: number; radius_m?: number };
 export type Store = { name: string; lat: number; lon: number; distance_m: number };
 
+/**
+ * V2 IMPLEMENTATION NOTES:
+ * 
+ * Current implementation: Mock/stub that generates fake stores for demo purposes.
+ * 
+ * V2 OPTIONS DISCUSSED:
+ * 
+ * 1. Google Places API (RECOMMENDED)
+ *    - Pros: Best data quality, easy integration (15 lines), free tier (900 req/day)
+ *    - Cons: Cannot check actual product inventory (stores only)
+ *    - Cost: Free up to 28,000 requests/month
+ *    - Implementation: See V2_STORE_UI.md for code example
+ *    - Disclaimer: Show nearby grocery stores with "call ahead to confirm availability"
+ * 
+ * 2. Headless Browser Scraping (Instacart/DoorDash)
+ *    - Pros: Real inventory data
+ *    - Cons: Very slow (15-30s), legally risky (ToS violations), brittle, CPU-intensive
+ *    - Performance: Not suitable for serverless/Vercel
+ *    - Legal: Violates Terms of Service, risk of IP bans
+ *    - Implementation: Not recommended for V2
+ * 
+ * 3. Kroger API (US only)
+ *    - Pros: Free, real inventory data
+ *    - Cons: Limited to Kroger stores only (2,800+ stores)
+ *    - Implementation: Similar to Google Places API
+ * 
+ * RECOMMENDED V2 APPROACH:
+ * - Use Google Places API to show nearby grocery stores
+ * - Add disclaimer: "These stores may carry this ingredient. Call ahead to confirm availability."
+ * - This provides value while being honest about limitations
+ */
 export function lookupStores(args: StoreLookupArgs): Store[] {
   const { query, lat, lon, radius_m = 5000 } = args;
   const norm = query.trim().toLowerCase();

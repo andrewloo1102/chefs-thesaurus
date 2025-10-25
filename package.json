@@ -11,7 +11,13 @@
     "dev:server": "tsx apps/server/src/dev.ts",
     "smoke": "tsx apps/server/src/smoke.ts",
     "validate": "tsx apps/server/src/scripts/validateData.ts",
-    "test:golden": "tsx apps/server/src/scripts/tryCases.ts"
+    "test:golden": "tsx apps/server/src/scripts/tryCases.ts",
+    "test:local": "node test-local.js",
+    "test:api": "node test-api.js",
+    "start:all": "node start-local.js",
+    "dev:mcp": "npm -w apps/mcp-server run dev",
+    "build:mcp": "npm -w apps/mcp-server run build",
+    "build:web": "npm -w apps/web-nextjs run build"
   },
   "devDependencies": {
     "@types/node": "^22.18.8",

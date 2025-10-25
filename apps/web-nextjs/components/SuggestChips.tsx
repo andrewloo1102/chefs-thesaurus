@@ -25,9 +25,10 @@ const exampleCombos: ExampleCombo[] = [
     label: "1/2 cup Sour cream → Cold topping"
   },
   {
-    ingredient: "garlic",
+    ingredient: "garlic-clove",
     dish: "Sauce/Gravy", 
     quantity: 2,
+    unit: "unit",
     label: "2 Garlic cloves → Sauce/Gravy"
   },
   {

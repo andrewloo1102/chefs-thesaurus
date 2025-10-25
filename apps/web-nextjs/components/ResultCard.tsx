@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StoreRow } from "@/components/StoreRow";
-import { type Store, type Ingredient, type Dish, type Unit } from "@/lib/data/ingredients";
+// import { StoreRow } from "@/components/StoreRow"; // V2: Re-enable when implementing store lookup
+import { type Ingredient, type Dish, type Unit } from "@/lib/data/ingredients";
 
 interface ResultData {
   originalIngredient: Ingredient;
@@ -9,7 +9,7 @@ interface ResultData {
   computedAmount?: string;
   effects: [string, string];
   tip: string;
-  stores: Store[];
+  // stores: Store[]; // V2: Re-enable when implementing store lookup
 }
 
 interface ResultCardProps {
@@ -58,7 +58,8 @@ export function ResultCard({ result }: ResultCardProps) {
           <p className="text-sm text-muted-foreground">{result.tip}</p>
         </div>
         
-        {/* Stores */}
+        {/* Stores - V2: Re-enable when implementing store lookup with Google Places API */}
+        {/* 
         <div className="space-y-3">
           <h4>Nearby stores:</h4>
           <div className="space-y-2">
@@ -67,6 +68,7 @@ export function ResultCard({ result }: ResultCardProps) {
             ))}
           </div>
         </div>
+        */}
       </CardContent>
     </Card>
   );

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchSubstitutions, describeEffects, lookupStores } from '@chefs-thesaurus/core';
+import { searchSubstitutions, describeEffects } from '@chefs-thesaurus/core';
+// import { lookupStores } from '@chefs-thesaurus/core'; // V2: Re-enable when implementing store lookup
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,16 +30,17 @@ export async function POST(request: NextRequest) {
       dish,
     });
 
+    // V2: Re-enable when implementing store lookup with Google Places API
     // Call lookupStores (if location provided)
-    let stores: Array<{ name: string; lat: number; lon: number; distance_m: number }> = [];
-    if (lat !== undefined && lon !== undefined && searchResult.substitute) {
-      stores = await lookupStores({
-        query: searchResult.substitute,
-        lat,
-        lon,
-        radius_m,
-      });
-    }
+    // let stores: Array<{ name: string; lat: number; lon: number; distance_m: number }> = [];
+    // if (lat !== undefined && lon !== undefined && searchResult.substitute) {
+    //   stores = await lookupStores({
+    //     query: searchResult.substitute,
+    //     lat,
+    //     lon,
+    //     radius_m,
+    //   });
+    // }
 
     // Return consolidated response
     return NextResponse.json({
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
       notes: searchResult.notes,
       alternatives: searchResult.alts,
       effects: effectsResult,
-      stores,
+      // stores, // V2: Re-enable when implementing store lookup
     });
   } catch (error) {
     console.error('Error in substitute API:', error);

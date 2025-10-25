@@ -53,6 +53,8 @@ Find nearby stores carrying an ingredient.
 
 ## Setup in Claude Desktop
 
+### Local MCP Server (Development)
+
 Add to your Claude Desktop config file:
 
 **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -82,6 +84,20 @@ Or for development (using tsx):
         "tsx",
         "C:\\Users\\andre\\Documents\\Projects\\chefs-thesaurus\\apps\\mcp-server\\src\\index.ts"
       ]
+    }
+  }
+}
+```
+
+### Remote MCP Server (Production)
+
+For the deployed version, use the remote URL:
+
+```json
+{
+  "mcpServers": {
+    "chefs-thesaurus": {
+      "url": "https://your-app.vercel.app/api/mcp/sse"
     }
   }
 }

@@ -15,12 +15,13 @@ export interface EffectsResult {
   supported: boolean;
 }
 
-export interface Store {
-  name: string;
-  lat: number;
-  lon: number;
-  distance_m: number;
-}
+// V2: Re-enable when implementing store lookup
+// export interface Store {
+//   name: string;
+//   lat: number;
+//   lon: number;
+//   distance_m: number;
+// }
 
 export interface ConsolidatedResult {
   supported: boolean;
@@ -32,7 +33,7 @@ export interface ConsolidatedResult {
   notes?: string;
   alternatives?: Array<{ substitute: string; ratioMultiplier?: number }>;
   effects?: EffectsResult;
-  stores?: Store[];
+  // stores?: Store[]; // V2: Re-enable when implementing store lookup
   message?: string;
   examples?: string[];
 }

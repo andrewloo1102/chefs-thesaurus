@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -228,14 +228,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Chef's Thesaurus MCP server running on stdio");
+export async function createRemoteMCPServer() {
+  const transport = new SSEServerTransport("/mcp/sse");
+  return { server, transport };
 }
-
-main().catch((error) => {
-  console.error("Fatal error:", error);
-  process.exit(1);
-});
-

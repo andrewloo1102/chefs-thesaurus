@@ -10,7 +10,7 @@ export {
   type EffectsResult,
   type StoreLookupArgs,
   type Store,
-} from "./substitutions.js";
+} from "./substitutions";
 
 export {
   canonUnit,
@@ -19,12 +19,12 @@ export {
   round,
   type SupportedUnit,
   type Quantity,
-} from "./units.js";
+} from "./units";
 
 export {
   resolveCanonical,
   getAllowlist,
   examples,
   type CanonicalIngredient,
-} from "./canonical.js";
+} from "./canonical";
 

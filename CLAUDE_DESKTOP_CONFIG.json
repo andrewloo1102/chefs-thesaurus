@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "chefs-thesaurus": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tsx",
+        "C:\\Users\\andre\\Documents\\Projects\\chefs-thesaurus\\apps\\mcp-server\\src\\index.ts"
+      ]
+    }
+  }
+}

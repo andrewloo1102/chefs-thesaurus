@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-// import { ChefHat } from "lucide-react";
+
+export const dynamic = 'force-dynamic';
+
+import { ChefHat } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { IngredientComboBox } from "@/components/IngredientComboBox";
 import { QuantityInput } from "@/components/QuantityInput";
 import { UnitSelect } from "@/components/UnitSelect";
@@ -15,8 +19,8 @@ import { SkeletonCard } from "@/components/SkeletonCard";
 import { 
   type Ingredient, 
   type Dish, 
-  type Unit, 
-  sampleStores 
+  type Unit
+  // sampleStores // V2: Re-enable when implementing store lookup
 } from "@/lib/data/ingredients";
 import { api } from "@/lib/api";
 
@@ -36,7 +40,7 @@ interface ResultData {
   computedAmount?: string;
   effects: [string, string];
   tip: string;
-  stores: typeof sampleStores;
+  // stores: typeof sampleStores; // V2: Re-enable when implementing store lookup
 }
 
 export default function Home() {
@@ -101,8 +105,8 @@ export default function Home() {
         quantity: formData.quantity || undefined,
         unit: formData.unit || undefined,
         dish: formData.dish || undefined,
-        lat: 40.7128, // NYC coordinates for demo
-        lon: -74.0060,
+        // lat: 40.7128, // V2: Re-enable when implementing store lookup
+        // lon: -74.0060, // V2: Re-enable when implementing store lookup
       });
 
       if (!response.supported || !response.substitute) {
@@ -115,12 +119,13 @@ export default function Home() {
         ? `${response.quantity} ${response.unit}` 
         : "1 : 1";
 
+      // V2: Re-enable when implementing store lookup
       // Convert stores to UI format
-      const uiStores = (response.stores || []).map(store => ({
-        name: store.name,
-        distance: `${(store.distance_m / 1609.34).toFixed(1)} mi`,
-        address: "View on map"
-      }));
+      // const uiStores = (response.stores || []).map(store => ({
+      //   name: store.name,
+      //   distance: `${(store.distance_m / 1609.34).toFixed(1)} mi`,
+      //   address: "View on map"
+      // }));
 
       const resultData: ResultData = {
         originalIngredient: formData.ingredient,
@@ -134,7 +139,7 @@ export default function Home() {
           response.effects?.summary || "Comparable outcome for most dishes."
         ] as [string, string],
         tip: response.notes || "Follow standard substitution practices.",
-        stores: uiStores.length > 0 ? uiStores : sampleStores
+        // stores: uiStores.length > 0 ? uiStores : sampleStores // V2: Re-enable when implementing store lookup
       };
 
       setResult(resultData);
@@ -150,6 +155,17 @@ export default function Home() {
     findSubstitute();
   };
 
+  const handleClear = () => {
+    setFormData({
+      ingredient: null,
+      quantity: "",
+      unit: null,
+      dish: null
+    });
+    setResult(null);
+    setState("idle");
+  };
+
   const canSubmit = formData.ingredient !== null;
 
   return (
@@ -159,9 +175,9 @@ export default function Home() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-3">
             <div className="h-7 w-7 text-primary bg-primary/10 rounded-full flex items-center justify-center">
-              <span className="text-sm font-bold">🍳</span>
+              <ChefHat className="h-4 w-4" />
             </div>
-            <h1 className="text-xl">Substitute</h1>
+            <h1 className="text-xl">Chef's Thesaurus</h1>
           </div>
           <p className="text-muted-foreground text-sm max-w-sm mx-auto leading-relaxed">
             Find the perfect cooking substitutions with precise measurements and helpful tips.
@@ -204,6 +220,16 @@ export default function Home() {
               disabled={!canSubmit}
               loading={state === "loading"}
             />
+
+            {/* Clear Button */}
+            <Button
+              onClick={handleClear}
+              variant="outline"
+              className="w-full"
+              disabled={state === "idle" && !formData.ingredient}
+            >
+              Clear
+            </Button>
 
             {/* Example Chips */}
             <SuggestChips onChipClick={handleChipClick} />
