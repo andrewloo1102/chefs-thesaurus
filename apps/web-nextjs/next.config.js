@@ -6,6 +6,12 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  output: 'standalone',
+  reactStrictMode: false,
+  swcMinify: true,
+  experimental: {
+    serverActions: true,
+  },
 }
 
 module.exports = nextConfig
