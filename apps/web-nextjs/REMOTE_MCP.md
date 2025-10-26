@@ -11,10 +11,8 @@ The remote MCP server allows Claude Desktop to connect to Chef's Thesaurus via H
 Once deployed on Vercel, your MCP endpoint will be available at:
 
 ```
-https://your-app-name.vercel.app/api/mcp
+https://chefs-thesaurus.vercel.app/api/mcp
 ```
-
-Replace `your-app-name` with your actual Vercel project name.
 
 ## Available Tools
 
@@ -38,7 +36,7 @@ The remote MCP server provides two tools:
 {
   "mcpServers": {
     "chefs-thesaurus-remote": {
-      "url": "https://your-app-name.vercel.app/api/mcp",
+      "url": "https://chefs-thesaurus.vercel.app/api/mcp",
       "method": "POST"
     }
   }
@@ -82,7 +80,7 @@ After configuring Claude Desktop, test the MCP connection:
 - Test the endpoint directly with curl:
 
 ```bash
-curl -X POST https://your-app-name.vercel.app/api/mcp \
+curl -X POST https://chefs-thesaurus.vercel.app/api/mcp \
   -H "Content-Type: application/json" \
   -d '{"tool": "search_substitution", "args": {"ingredient": "butter"}}'
 ```
