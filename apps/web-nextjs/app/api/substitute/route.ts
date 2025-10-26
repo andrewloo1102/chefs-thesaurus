@@ -7,6 +7,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { ingredient, quantity, unit, dish, lat, lon, radius_m } = body;
 
+    console.log('API called with:', { ingredient, quantity, unit, dish });
+
     // Call searchSubstitutions
     const searchResult = await searchSubstitutions({
       ingredient,
@@ -14,6 +16,8 @@ export async function POST(request: NextRequest) {
       unit,
       dish,
     });
+
+    console.log('Search result:', searchResult);
 
     if (!searchResult.supported) {
       return NextResponse.json({
