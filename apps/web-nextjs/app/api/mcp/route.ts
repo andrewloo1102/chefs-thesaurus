@@ -1,48 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { searchSubstitutions, describeEffects } from '@chefs-thesaurus/core';
 
-/**
- * Remote MCP Server endpoint for Chef's Thesaurus
- * Supports SSE (Server-Sent Events) for MCP protocol
- */
-export async function GET(request: NextRequest) {
-  // Check if this is an SSE request
-  const acceptHeader = request.headers.get('accept');
-  
-  if (acceptHeader?.includes('text/event-stream')) {
-    // Return SSE stream for MCP protocol
-    const encoder = new TextEncoder();
-    
-    const stream = new ReadableStream({
-      start(controller) {
-        // Send initial connection message
-        controller.enqueue(encoder.encode(': connected\n\n'));
-        
-        // Keep connection alive with heartbeat
-        const interval = setInterval(() => {
-          controller.enqueue(encoder.encode(': heartbeat\n\n'));
-        }, 30000);
-
-        // Clean up on close
-        request.signal.addEventListener('abort', () => {
-          clearInterval(interval);
-          controller.close();
-        });
-      }
-    });
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache, no-transform',
-        'Connection': 'keep-alive',
-        'X-Accel-Buffering': 'no',
-      },
-    });
+// Create MCP server singleton
+const mcpServer = new Server(
+  {
+    name: 'chefs-thesaurus',
+    version: '0.1.0',
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
   }
+);
 
-  // For non-SSE requests, return tool list
-  return NextResponse.json({
+// Register tool list handler
+mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
+  return {
     tools: [
       {
         name: 'search_substitution',
@@ -93,26 +70,19 @@ export async function GET(request: NextRequest) {
         },
       },
     ],
-  });
-}
+  };
+});
 
-/**
- * Handle POST requests for MCP messages
- */
-export async function POST(request: NextRequest) {
+// Register tool call handler
+mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+
+  if (!args) {
+    throw new Error('No arguments provided');
+  }
+
   try {
-    const body = await request.json();
-    const { tool, args } = body;
-
-    if (!tool) {
-      return NextResponse.json(
-        { error: 'Missing tool name' },
-        { status: 400 }
-      );
-    }
-
-    // Handle search_substitution tool
-    if (tool === 'search_substitution') {
+    if (name === 'search_substitution') {
       const result = searchSubstitutions({
         ingredient: args.ingredient as string,
         quantity: args.quantity as number | undefined,
@@ -121,14 +91,14 @@ export async function POST(request: NextRequest) {
       });
 
       if (!result.supported) {
-        return NextResponse.json({
+        return {
           content: [
             {
               type: 'text',
               text: `Ingredient "${args.ingredient}" is not supported yet.\n\nExamples of supported ingredients: ${result.examples?.join(', ')}`,
             },
           ],
-        });
+        };
       }
 
       let response = `**Substitute for ${result.base}:**\n\n`;
@@ -150,18 +120,17 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      return NextResponse.json({
+      return {
         content: [
           {
             type: 'text',
             text: response,
           },
         ],
-      });
+      };
     }
 
-    // Handle describe_effects tool
-    if (tool === 'describe_effects') {
+    if (name === 'describe_effects') {
       const result = describeEffects({
         base: args.base as string,
         substitute: args.substitute as string,
@@ -169,36 +138,91 @@ export async function POST(request: NextRequest) {
       });
 
       if (!result.supported) {
-        return NextResponse.json({
+        return {
           content: [
             {
               type: 'text',
               text: 'Cannot describe effects for this substitution.',
             },
           ],
-        });
+        };
       }
 
-      return NextResponse.json({
+      return {
         content: [
           {
             type: 'text',
             text: `**Effects of substituting ${args.substitute} for ${args.base}:**\n\n${result.summary}`,
           },
         ],
-      });
+      };
     }
 
-    // Unknown tool
-    return NextResponse.json(
-      { error: `Unknown tool: ${tool}` },
-      { status: 400 }
-    );
+    throw new Error(`Unknown tool: ${name}`);
   } catch (error) {
-    console.error('MCP endpoint error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
+      isError: true,
+    };
   }
+});
+
+// Handle SSE requests for MCP protocol
+export async function GET(request: NextRequest) {
+  const acceptHeader = request.headers.get('accept');
+  
+  if (acceptHeader?.includes('text/event-stream')) {
+    const transport = new SSEServerTransport('/api/mcp', request.headers);
+    
+    try {
+      await mcpServer.connect(transport);
+      
+      // Return the SSE stream from the transport
+      return new Response(transport.getReadableStream(), {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache, no-transform',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+      });
+    } catch (error) {
+      console.error('MCP connection error:', error);
+      return new Response(`Error: ${error instanceof Error ? error.message : String(error)}`, {
+        status: 500,
+        headers: { 'Content-Type': 'text/plain' },
+      });
+    }
+  }
+
+  // Non-SSE request - return tools list
+  return Response.json({
+    tools: [
+      {
+        name: 'search_substitution',
+        description: 'Find cooking ingredient substitutions with precise measurements.',
+      },
+      {
+        name: 'describe_effects',
+        description: 'Describe the effects of using a substitute ingredient.',
+      },
+    ],
+  });
+}
+
+// Handle POST requests for initialization
+export async function POST(request: NextRequest) {
+  const acceptHeader = request.headers.get('accept');
+  
+  if (acceptHeader?.includes('text/event-stream')) {
+    // Redirect POST SSE requests to GET handler
+    return GET(request);
+  }
+
+  return Response.json({ message: 'MCP server is running' });
 }
