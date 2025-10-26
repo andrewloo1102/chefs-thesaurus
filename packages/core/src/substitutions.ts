@@ -1,8 +1,6 @@
-import * as fs from "fs";
-import * as path from "path";
-import { fileURLToPath } from "url";
 import { canonUnit, fromMl, round, toMl, type SupportedUnit } from "./units";
 import { resolveCanonical, examples } from "./canonical";
+import substitutionsData from "../data/substitutions.json";
 
 type Basis = "volume" | "unit";
 
@@ -27,11 +25,7 @@ type Entry = {
   alternatives: Alternative[];
 };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname2 = path.dirname(__filename);
-const dataPath = path.join(__dirname2, "../data/substitutions.json");
-const raw = fs.readFileSync(dataPath, "utf8");
-const SUBS: Entry[] = JSON.parse(raw) as Entry[];
+const SUBS: Entry[] = substitutionsData as Entry[];
 
 export type SearchArgs = {
   ingredient: string;
