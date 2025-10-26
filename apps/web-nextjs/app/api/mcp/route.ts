@@ -2,8 +2,102 @@ import { NextRequest, NextResponse } from 'next/server';
 import { searchSubstitutions, describeEffects } from '@chefs-thesaurus/core';
 
 /**
- * Simple HTTP MCP endpoint for Chef's Thesaurus
- * Handles tool calls via POST requests
+ * Remote MCP Server endpoint for Chef's Thesaurus
+ * Supports SSE (Server-Sent Events) for MCP protocol
+ */
+export async function GET(request: NextRequest) {
+  // Check if this is an SSE request
+  const acceptHeader = request.headers.get('accept');
+  
+  if (acceptHeader?.includes('text/event-stream')) {
+    // Return SSE stream for MCP protocol
+    const encoder = new TextEncoder();
+    
+    const stream = new ReadableStream({
+      start(controller) {
+        // Send initial connection message
+        controller.enqueue(encoder.encode(': connected\n\n'));
+        
+        // Keep connection alive with heartbeat
+        const interval = setInterval(() => {
+          controller.enqueue(encoder.encode(': heartbeat\n\n'));
+        }, 30000);
+
+        // Clean up on close
+        request.signal.addEventListener('abort', () => {
+          clearInterval(interval);
+          controller.close();
+        });
+      }
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+      },
+    });
+  }
+
+  // For non-SSE requests, return tool list
+  return NextResponse.json({
+    tools: [
+      {
+        name: 'search_substitution',
+        description: 'Find cooking ingredient substitutions with precise measurements. Supports 20+ ingredients including butter, eggs, sour cream, garlic, sugar, milk, flour, and more. Returns substitute ingredient with calculated quantity based on ratio.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            ingredient: {
+              type: 'string',
+              description: "The ingredient to substitute (e.g., 'butter', 'eggs', 'sour cream', 'garlic clove')",
+            },
+            quantity: {
+              type: 'number',
+              description: 'Optional: Amount of the ingredient',
+            },
+            unit: {
+              type: 'string',
+              description: 'Optional: Unit of measurement (tsp, tbsp, cup, ml, g, unit)',
+            },
+            dish: {
+              type: 'string',
+              description: "Optional: Type of dish or technique (e.g., 'Cookies', 'Cakes', 'Sauce/Gravy')",
+            },
+          },
+          required: ['ingredient'],
+        },
+      },
+      {
+        name: 'describe_effects',
+        description: 'Describe the effects of using a substitute ingredient in place of the original. Returns information about how the substitution will affect the dish\'s texture, flavor, or appearance.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            base: {
+              type: 'string',
+              description: 'The original ingredient',
+            },
+            substitute: {
+              type: 'string',
+              description: 'The substitute ingredient',
+            },
+            dish: {
+              type: 'string',
+              description: 'Optional: Type of dish or technique',
+            },
+          },
+          required: ['base', 'substitute'],
+        },
+      },
+    ],
+  });
+}
+
+/**
+ * Handle POST requests for MCP messages
  */
 export async function POST(request: NextRequest) {
   try {
@@ -107,62 +201,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-/**
- * List available tools (for MCP discovery)
- */
-export async function GET(request: NextRequest) {
-  return NextResponse.json({
-    tools: [
-      {
-        name: 'search_substitution',
-        description: 'Find cooking ingredient substitutions with precise measurements. Supports 20+ ingredients including butter, eggs, sour cream, garlic, sugar, milk, flour, and more. Returns substitute ingredient with calculated quantity based on ratio.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            ingredient: {
-              type: 'string',
-              description: "The ingredient to substitute (e.g., 'butter', 'eggs', 'sour cream', 'garlic clove')",
-            },
-            quantity: {
-              type: 'number',
-              description: 'Optional: Amount of the ingredient',
-            },
-            unit: {
-              type: 'string',
-              description: 'Optional: Unit of measurement (tsp, tbsp, cup, ml, g, unit)',
-            },
-            dish: {
-              type: 'string',
-              description: "Optional: Type of dish or technique (e.g., 'Cookies', 'Cakes', 'Sauce/Gravy')",
-            },
-          },
-          required: ['ingredient'],
-        },
-      },
-      {
-        name: 'describe_effects',
-        description: 'Describe the effects of using a substitute ingredient in place of the original. Returns information about how the substitution will affect the dish\'s texture, flavor, or appearance.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            base: {
-              type: 'string',
-              description: 'The original ingredient',
-            },
-            substitute: {
-              type: 'string',
-              description: 'The substitute ingredient',
-            },
-            dish: {
-              type: 'string',
-              description: 'Optional: Type of dish or technique',
-            },
-          },
-          required: ['base', 'substitute'],
-        },
-      },
-    ],
-  });
 }
