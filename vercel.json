@@ -1,10 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "apps/web-nextjs/package.json",
-      "use": "@vercel/next"
-    }
-  ]
+  "buildCommand": "cd apps/web-nextjs && npm install && npm run build",
+  "outputDirectory": "apps/web-nextjs/.next",
+  "installCommand": "npm install"
 }
 
