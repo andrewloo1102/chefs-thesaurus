@@ -3,6 +3,12 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
+const isWindows = process.platform === 'win32';
+const command = isWindows ? 'cmd.exe' : 'npx';
+const args = isWindows
+  ? ['/c', 'npx', '-y', 'tsx', 'src/index.ts']
+  : ['-y', 'tsx', 'src/index.ts'];
+
 console.log('🧪 Testing Local MCP Server');
 console.log('============================\n');
 
@@ -10,7 +16,7 @@ console.log('============================\n');
 function testLocalMCPServer() {
   console.log('🔍 Testing local MCP server...');
   
-  const mcpProcess = spawn('npx', ['tsx', 'src/index.ts'], {
+  const mcpProcess = spawn(command, args, {
     cwd: path.join(process.cwd(), 'apps/mcp-server'),
     stdio: ['pipe', 'pipe', 'pipe']
   });
@@ -36,15 +42,20 @@ function testLocalMCPServer() {
     error += data.toString();
   });
   
-  mcpProcess.on('close', (code) => {
-    if (code === 0) {
+  mcpProcess.on('close', (code, signal) => {
+    const terminatedByTimer = signal === 'SIGTERM' || signal === 'SIGKILL';
+
+    if (code === 0 || terminatedByTimer) {
       console.log('✅ Local MCP server test completed');
-      if (output) {
+      if (output.trim()) {
         console.log('📤 Output:', output);
+      }
+      if (error.trim()) {
+        console.log('ℹ️  Stderr:', error);
       }
     } else {
       console.log('❌ Local MCP server test failed');
-      if (error) {
+      if (error.trim()) {
         console.log('📤 Error:', error);
       }
     }

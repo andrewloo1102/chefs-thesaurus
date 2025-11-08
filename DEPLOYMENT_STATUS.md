@@ -2,80 +2,44 @@
 
 ## Current Status ✅
 
-### Completed:
-1. **GitHub Backup** - All code committed and pushed to GitHub
-2. **Remote MCP Server** - Created HTTP/SSE transport for remote MCP
-3. **Vercel Configuration** - Added deployment configs and documentation
-4. **Development Server** - Next.js app runs successfully on localhost:3000
+### Completed
+1. **GitHub backup** - Latest changes pushed to `main`
+2. **Next.js site** - Runs cleanly in dev and prod build (Next 14.2.0 + React 18)
+3. **Vercel setup** - Project root `apps/web-nextjs` confirmed
+4. **Local MCP server** - Verified through Claude Desktop
 
-### Build Status:
-- ✅ **Development**: App runs perfectly in dev mode
-- ⚠️ **Production Build**: Has React type conflicts (common with React 19 + Next.js 15)
-- ✅ **Workaround**: Added `ignoreBuildErrors: true` in next.config.js
+### Build status
+- ✅ Development: `npm run dev`
+- ✅ Production: `npm run build`
+- ℹ️ Remote MCP deployment: deferred to future version
 
-## Deployment Options
+## Deploying the web app
 
-### Option 1: Vercel CLI (Recommended)
 ```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Login to Vercel
+npm install -g vercel
 vercel login
-
-# Deploy from project root
+cd C:\Users\andre\Documents\Projects\chefs-thesaurus
 vercel --prod
 ```
 
-### Option 2: Vercel Dashboard
-1. Go to [vercel.com](https://vercel.com)
-2. Import from GitHub: `andrewloo1102/chefs-thesaurus`
-3. Set root directory: `apps/web-nextjs`
-4. Deploy
+When prompted, choose `apps/web-nextjs` as the project directory. Re-deploys reuse that setting automatically.
 
-## Remote MCP Server Setup
+## Post-deploy checks
 
-### For Claude Desktop:
-1. Deploy the web app to Vercel
-2. Get the deployment URL (e.g., `https://chefs-thesaurus.vercel.app`)
-3. Update Claude Desktop config:
+1. Open the production URL (e.g., https://chefs-thesaurus.vercel.app)
+2. Run the four golden cases and confirm results match local behavior
+3. Spot-check `/api/substitute` with `curl` or the built-in browser dev tools
 
-```json
-{
-  "mcpServers": {
-    "chefs-thesaurus-remote": {
-      "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-everything"
-      ],
-      "env": {
-        "MCP_SERVER_URL": "https://chefs-thesaurus.vercel.app/api/mcp/sse"
-      }
-    }
-  }
-}
-```
+## MCP note
 
-## Next Steps
+- V1 only advertises the local stdio MCP server.
+- `apps/mcp-server/src/remote.ts` is retained as a future experiment but is not wired into production.
+- Mention a remote MCP endpoint as an “optional future enhancement” in documentation if needed.
 
-1. **Deploy to Vercel** (you'll need to do this manually)
-2. **Test the deployed app**
-3. **Configure remote MCP server**
-4. **Test MCP integration with Claude Desktop**
+## Related files
 
-## Files Created for Deployment
-
-- `vercel.json` - Vercel deployment configuration
-- `.vercelignore` - Files to exclude from deployment
-- `DEPLOYMENT.md` - Comprehensive deployment guide
-- `apps/web-nextjs/next.config.js` - Build configuration
-- `apps/mcp-server/src/remote.ts` - Remote MCP server
-- `apps/web-nextjs/app/api/mcp/sse/route.ts` - MCP SSE endpoint (removed due to build issues)
-
-## Notes
-
-- The app works perfectly in development mode
-- Build issues are related to React 19 type compatibility (common issue)
-- The `ignoreBuildErrors: true` configuration allows deployment despite type errors
-- All core functionality is working (substitution logic, API endpoints, UI)
+- `DEPLOYMENT.md` – detailed CLI + dashboard walkthrough
+- `docs/DEMO_SCRIPT.md` – live demo steps (local MCP)
+- `apps/web-nextjs/next.config.js` – production build settings
+- `test-local.js` – smoke test run prior to deployment
 

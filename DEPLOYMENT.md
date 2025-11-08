@@ -1,164 +1,74 @@
 # Chef's Thesaurus Deployment Guide
 
-This guide covers deploying the Chef's Thesaurus web app and remote MCP server to Vercel.
+This guide walks through shipping the deterministic Next.js site to Vercel. Remote MCP deployment is intentionally deferred; the local stdio server covers the demo story for V1.
 
 ## Prerequisites
 
-- Vercel account (free tier works)
-- GitHub repository connected to Vercel
-- Node.js 18+ installed locally
+- Vercel account (free tier is fine)
+- GitHub repository up to date
+- Node.js 20+ on your machine
 
-## Deployment Steps
-
-### 1. Prepare for Deployment
-
-Ensure all files are committed and pushed to GitHub:
+## 1. Prepare the project
 
 ```bash
-git add .
-git commit -m "feat: remote MCP server and Vercel config"
-git push origin main
+npm install
+npm run test:golden
+npm run validate
+cd apps/web-nextjs
+npm run build
+cd ..\..
 ```
 
-### 2. Deploy to Vercel
+Ensure all changes are committed: `git status` should be clean.
 
-#### Option A: Vercel CLI (Recommended)
+## 2. Deploy with Vercel CLI (recommended)
 
-1. **Install Vercel CLI:**
-   ```bash
-   npm i -g vercel
-   ```
+```bash
+npm install -g vercel
+vercel login
+cd C:\Users\andre\Documents\Projects\chefs-thesaurus
+vercel --prod
+```
 
-2. **Login to Vercel:**
-   ```bash
-   vercel login
-   ```
+Prompt checklist:
+- “Link to existing project?” → Yes (if already linked) or No → create new
+- “Which scope?” → Choose your personal account
+- “Link to which directory?” → `apps/web-nextjs`
+- “Configure as Next.js?” → Accept defaults
 
-3. **Deploy from project root:**
-   ```bash
-   vercel --prod
-   ```
+## 3. Verify the deployment
 
-4. **Follow the prompts:**
-   - Link to existing project or create new
-   - Set root directory: `apps/web-nextjs`
-   - Confirm build settings
+1. Visit the generated URL (e.g., `https://chefs-thesaurus.vercel.app`).
+2. Run the four golden cases to ensure outputs match local expectations.
+3. Hit the API directly: `curl https://chefs-thesaurus.vercel.app/api/substitute` with the butter example from LOCAL_TESTING.md.
 
-#### Option B: Vercel Dashboard
+## 4. Optional dashboard workflow
 
-1. Go to [vercel.com/dashboard](https://vercel.com/dashboard)
-2. Click "New Project"
-3. Import your GitHub repository
-4. Set root directory to `apps/web-nextjs`
+If you prefer the UI:
+1. Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
+2. Click **Add New… → Project**
+3. Import `andrewloo1102/chefs-thesaurus`
+4. Set **Root Directory** to `apps/web-nextjs`
 5. Deploy
 
-### 3. Configure Environment Variables
+## 5. MCP reminder
 
-In Vercel dashboard, add any environment variables if needed:
+- Keep Claude Desktop pointed at the local stdio command (`npx -y tsx apps/mcp-server/src/index.ts`).
+- `apps/mcp-server/src/remote.ts` remains for future exploration but is not part of the deployment story.
+- Mention remote MCP only as future work when discussing roadmap.
 
-- No environment variables required for basic functionality
-- Optional: Add custom domain settings
+## 6. Troubleshooting
 
-### 4. Verify Deployment
+| Issue | Fix |
+| --- | --- |
+| Build fails on Vercel | Run `npm run build` locally inside `apps/web-nextjs` to reproduce; check Next.js logs. |
+| Wrong directory error | Re-run `vercel --prod` and choose `apps/web-nextjs` when prompted. |
+| Env variables | None required for V1. |
+| Old assets served | Deploy again or use `vercel --prod --force`. |
 
-1. **Test Web App:**
-   - Visit your Vercel URL (e.g., `https://chefs-thesaurus.vercel.app`)
-   - Test ingredient substitutions
-   - Verify all functionality works
+## 7. After deployment
 
-2. **Test MCP Server:**
-   - Test the SSE endpoint: `https://your-app.vercel.app/api/mcp/sse`
-   - Should return MCP server information
-
-### 5. Configure Claude Desktop for Remote MCP
-
-Once deployed, users can configure Claude Desktop to use the remote MCP server:
-
-**Claude Desktop Config:**
-```json
-{
-  "mcpServers": {
-    "chefs-thesaurus": {
-      "url": "https://your-app.vercel.app/api/mcp/sse"
-    }
-  }
-}
-```
-
-**File locations:**
-- **Windows:** `%APPDATA%\\Claude\\claude_desktop_config.json`
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-## Architecture After Deployment
-
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Web Users     │    │   Vercel         │    │   Shared Core   │
-│   (Browser)     │◄──►│   (Next.js App)  │◄──►│   (packages/)   │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-┌─────────────────┐    ┌──────────────────┐
-│   Claude Users  │    │   MCP SSE        │
-│   (Desktop)     │◄──►│   (/api/mcp/sse) │
-└─────────────────┘    └──────────────────┘
-```
-
-## Features Available
-
-### Web App (Browser)
-- Ingredient substitution search
-- Quantity calculations
-- Store lookup
-- Responsive design
-- Real-time results
-
-### MCP Server (Claude Desktop)
-- `search_substitution` tool
-- `describe_effects` tool  
-- `lookup_stores` tool
-- Rich formatted responses
-
-## Troubleshooting
-
-### Build Issues
-- Ensure `apps/web-nextjs/package.json` has correct build scripts
-- Check that all dependencies are installed
-- Verify TypeScript compilation
-
-### MCP Server Issues
-- Test SSE endpoint directly: `curl https://your-app.vercel.app/api/mcp/sse`
-- Check Vercel function logs
-- Verify CORS headers are set
-
-### Claude Desktop Issues
-- Restart Claude Desktop after config changes
-- Check config file syntax (valid JSON)
-- Verify URL is accessible
-
-## Custom Domain (Optional)
-
-1. In Vercel dashboard, go to Project Settings
-2. Add your custom domain
-3. Update Claude Desktop config with new URL
-4. Update any documentation with new domain
-
-## Monitoring
-
-- **Vercel Analytics:** Built-in performance monitoring
-- **Function Logs:** Check Vercel dashboard for errors
-- **Usage Stats:** Monitor API calls and performance
-
-## Updates
-
-To update the deployment:
-
-1. Make changes locally
-2. Commit and push to GitHub
-3. Vercel automatically redeploys
-4. No manual intervention needed
-
-## Support
-
-- **Web App Issues:** Check browser console and Vercel logs
-- **MCP Issues:** Test SSE endpoint and check Claude Desktop logs
-- **General Issues:** Review this documentation and Vercel docs
+- Update README.md (already links to the live site) if the URL changes.
+- Record or share the Loom demo using `docs/DEMO_SCRIPT.md`.
+- Create a short changelog entry if you iterate further.
 

@@ -1,154 +1,111 @@
 # Local Testing Guide - Chef's Thesaurus
 
-This guide helps you test all components locally before deploying to Vercel.
+This guide walks through verifying the deterministic dataset, the Next.js UI, and the local MCP server before sharing the project.
 
 ## Prerequisites
 
-- Node.js 18+ installed
+- Node.js 20+
 - Git configured
-- All dependencies installed: `npm install`
+- Run `npm install` once at the repository root
 
-## Quick Start
+## Quick smoke test
 
-Run the automated test suite:
 ```bash
 node test-local.js
 ```
 
-## Manual Testing Steps
+The script runs golden cases, validates data, and pings the consolidated API.
 
-### 1. Core Logic Testing
+## Manual testing checklist
 
-Test the core substitution logic:
+### 1. Core logic
+
 ```bash
-# Run golden tests
-npm run test:golden
-
-# Validate data
-npm run validate
+npm run test:golden       # deterministic substitution snapshots
+npm run validate          # substitutions.json schema + ratio sanity checks
 ```
 
-### 2. Web Application Testing
+### 2. Web application
 
-Start the Next.js development server:
 ```bash
+npm run dev               # launches http://localhost:3000
+```
+
+In the browser, confirm:
+- Example chips populate the form
+- Submissions hit `/api/substitute`
+- Four golden cases render the expected cards (see outputs below)
+
+### 3. MCP server (local stdio)
+
+```bash
+cd apps/mcp-server
 npm run dev
 ```
 
-This will start the web app on `http://localhost:3000` (or 3001 if 3000 is busy).
+Configure Claude Desktop with the JSON block in `docs/DEMO_SCRIPT.md`, then list tools and call `search_substitution` / `describe_effects`.
 
-**Test the web interface:**
-- Open `http://localhost:3000`
-- Try different ingredient substitutions
-- Test the API endpoint directly: `POST http://localhost:3000/api/substitute`
+### 4. API endpoint
 
-### 3. MCP Server Testing
-
-#### Local MCP Server (stdio transport)
-```bash
-cd apps/mcp-server
-npm run build
-npm run dev
-```
-
-This starts the MCP server for local Claude Desktop integration.
-
-#### Remote MCP Server (HTTP/SSE transport)
-```bash
-cd apps/mcp-server
-npm run dev:remote
-```
-
-This starts the MCP server with HTTP/SSE transport for remote access.
-
-### 4. API Testing
-
-Test the consolidated API endpoint:
 ```bash
 curl -X POST http://localhost:3000/api/substitute \
   -H "Content-Type: application/json" \
   -d '{
-    "ingredient": "butter",
-    "quantity": 1,
-    "unit": "cup",
-    "dish": "baking"
-  }'
+        "ingredient": "butter",
+        "quantity": 4,
+        "unit": "tbsp"
+      }'
 ```
 
-Expected response:
+Expected JSON:
+
 ```json
 {
   "supported": true,
   "base": "butter",
-  "substitute": "coconut oil",
-  "quantity": 1,
-  "unit": "cup",
+  "substitute": "Neutral oil",
+  "quantity": 3,
+  "unit": "tbsp",
   "basis": "volume",
-  "effects": "...",
-  "stores": []
+  "notes": "Use 3/4 the amount of oil for butter.",
+  "alts": [
+    {
+      "substitute": "Coconut oil (refined)",
+      "ratioMultiplier": 1
+    }
+  ]
 }
 ```
 
-### 5. Production Build Testing
+### 5. Production parity
 
-Test the production build (ignores type errors):
 ```bash
 cd apps/web-nextjs
 npm run build
 ```
 
-This should complete successfully with the current configuration.
+Next.js 14.2.0 with React 18 builds cleanly using the checked-in config.
 
-## Testing Checklist
+## Golden case reference
 
-- [ ] Golden tests pass
-- [ ] Data validation passes
-- [ ] Web app loads and functions correctly
-- [ ] API endpoints respond correctly
-- [ ] MCP server builds successfully
-- [ ] Production build completes (with type warnings)
-- [ ] All substitution logic works as expected
+| Case | Expected result |
+| --- | --- |
+| Sour cream, 1 cup | Greek yogurt (full-fat), 1 cup, note about sharper tang |
+| Butter, 4 tbsp | Neutral oil, 3 tbsp, note about 3/4 ratio |
+| Garlic clove, 2 unit | Garlic powder, 0.25 unit, note ≈1/8 tsp per clove |
+| Crema agria, 1 cup | Greek yogurt (full-fat), 1 cup, same note as sour cream |
 
 ## Troubleshooting
 
-### Port Conflicts
-If port 3000 is busy, Next.js will automatically use port 3001.
+- **Port already in use**: Next.js will offer `3001`; accept it and update the curl URL.
+- **Claude cannot see tools**: Double-check the Windows paths and escape backslashes in `claude_desktop_config.json`.
+- **TypeScript complaints**: Run `npm install` to ensure workspace dependencies match `package-lock.json`.
+- **Slow dev server**: Close other Turbopack instances and restart.
 
-### Build Errors
-If you encounter build errors:
-1. Check that all dependencies are installed
-2. Verify TypeScript configuration
-3. The current setup ignores type errors for deployment
+## After local sign-off
 
-### MCP Server Issues
-1. Ensure all dependencies are installed in `apps/mcp-server`
-2. Check that the core package is built
-3. Verify Claude Desktop configuration
-
-## Local Development Workflow
-
-1. **Start web app**: `npm run dev`
-2. **Make changes** to code
-3. **Test changes** in browser
-4. **Run tests**: `node test-local.js`
-5. **Commit changes**: `git add . && git commit -m "description"`
-6. **Push to GitHub**: `git push origin main`
-
-## Next Steps After Local Testing
-
-Once everything works locally:
-1. Deploy to Vercel: `vercel --prod`
-2. Test deployed application
-3. Configure remote MCP server
-4. Update Claude Desktop configuration
-
-## Environment Variables
-
-For local testing, you don't need any environment variables. All functionality works with the default configuration.
-
-## Performance Notes
-
-- Development server uses Turbopack for faster builds
-- Production build may take longer due to optimization
-- MCP server runs efficiently in both stdio and HTTP modes
+1. Record or rehearse the Loom demo using docs/DEMO_SCRIPT.md.
+2. Push the repo to GitHub if it is not already up-to-date.
+3. Deploy (optional) via `vercel --prod` using `apps/web-nextjs` as the root.
+4. Mention remote MCP as future work; V1 focuses on deterministic local demos.
 

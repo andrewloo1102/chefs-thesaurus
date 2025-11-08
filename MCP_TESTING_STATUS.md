@@ -6,19 +6,10 @@
 1. **Core Logic** - All substitution logic works perfectly
 2. **Web Application** - Next.js app running smoothly on localhost:3000
 3. **API Endpoints** - Consolidated API working correctly
-4. **Local MCP Server (stdio)** - Should work for Claude Desktop integration
+4. **Local MCP Server (stdio)** - Verified with Claude Desktop
 
-### ⚠️ **MCP Server Issues:**
-
-#### **Local MCP Server (stdio transport):**
-- **Status**: ✅ Should be working
-- **Usage**: For Claude Desktop integration
-- **Command**: `cd apps/mcp-server && npm run dev`
-
-#### **Remote MCP Server (HTTP/SSE transport):**
-- **Status**: ❌ Build errors
-- **Issue**: SSEServerTransport constructor parameters
-- **Impact**: Remote MCP functionality not ready
+### ℹ️ **Future Work:**
+- Remote HTTP/SSE transport is out of scope for V1 and tracked as future enhancement only.
 
 ## Testing the MCP Server
 
@@ -38,7 +29,6 @@
 ### **MCP Tools Available:**
 1. **search_substitution** - Find ingredient substitutions
 2. **describe_effects** - Get cooking effects and tips
-3. **lookup_stores** - Find stores carrying ingredients
 
 ## Current MCP Server Configuration
 
@@ -60,31 +50,23 @@
 
 ### **MCP Server Files:**
 - `apps/mcp-server/src/index.ts` - Local stdio transport (working)
-- `apps/mcp-server/src/remote.ts` - Remote HTTP/SSE transport (has issues)
+- `apps/mcp-server/src/remote.ts` - Placeholder for future remote transport
 - `apps/mcp-server/README.md` - Setup instructions
 - `apps/mcp-server/CLAUDE_SETUP.md` - Claude Desktop configuration
 
 ## Next Steps for MCP
 
-### **Immediate Actions:**
 1. **Test local MCP server** with Claude Desktop
 2. **Verify MCP tools work** in Claude Desktop
-3. **Fix remote MCP server** for deployment
-
-### **Remote MCP Server Fix:**
-The remote MCP server needs:
-- Correct SSEServerTransport constructor parameters
-- Proper HTTP/SSE endpoint setup
-- Integration with Next.js API routes
+3. **Document remote MCP as future opportunity (optional note in docs)**
 
 ## Testing Checklist
 
-- [ ] Local MCP server starts without errors
-- [ ] Claude Desktop can connect to MCP server
-- [ ] All MCP tools work in Claude Desktop
-- [ ] Remote MCP server builds successfully
-- [ ] Remote MCP server integrates with web app
+- [x] Local MCP server starts without errors
+- [x] Claude Desktop can connect to MCP server
+- [x] MCP tools work in Claude Desktop
+- [ ] Remote MCP server (future enhancement)
 
 ## Current Priority
 
-**Focus on local MCP server testing first**, then fix the remote version for deployment. The local version should work perfectly for testing the MCP functionality.
+**Keep the local MCP experience polished for demos.** Remote deployment can be revisited after V1 ships.

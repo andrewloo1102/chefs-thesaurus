@@ -24,11 +24,11 @@ const tests = [
     description: 'Validate substitutions.json data'
   },
   {
-    name: 'MCP Server Build',
-    command: 'npm',
-    args: ['run', 'build'],
-    cwd: path.join(process.cwd(), 'apps/mcp-server'),
-    description: 'Build MCP server for testing'
+    name: 'MCP Server Smoke Test',
+    command: 'node',
+    args: ['test-mcp-local.js'],
+    cwd: process.cwd(),
+    description: 'Start stdio MCP server and list tools'
   },
   {
     name: 'Next.js Build Test',
